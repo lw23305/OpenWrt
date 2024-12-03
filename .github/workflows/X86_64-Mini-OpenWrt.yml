@@ -3,7 +3,7 @@ name: X86_64 Mini OpenWrt
 on:
   workflow_dispatch:
   schedule:
-    - cron: 0 19 * * *
+    - cron: 0 19 * * 1
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
@@ -139,18 +139,17 @@ jobs:
         path: ${{ env.OPENWRT_PATH }}/bin
 
     - name: Organize Files
-      if: steps.generate.outputs.status == 'success'
+      if: steps.compile.outputs.status == 'success'
       run: |
         cd $OPENWRT_PATH/bin/targets/*/*
-        rm -rf packages *.buildinfo *.manifest *kernel.bin *rootfs.img.gz
-        rm -rf build.config
+        cat config.buildinfo
+        echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
+        rm -rf packages *.buildinfo *.manifest *kernel.bin *rootfs.img.gz profiles.json sha256sums
         rm -rf mini-openwrt-x86-64-generic-rootfs.tar.gz
-        rm -rf mini-openwrt-x86-64-generic-squashfs-combined.img.gz
-        rm -rf mini-openwrt-x86-64-generic.manifest
-        rm -rf packages.tar.gz
+        rm -rf mini-openwrt-x86-64-generic-squashfs-combined.img.gz        
         rename 's/^/mini-/' *
         echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
-        
+
     - name: Upload Firmware To Artifact
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
       uses: actions/upload-artifact@main
