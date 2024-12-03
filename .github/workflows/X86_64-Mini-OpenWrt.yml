@@ -1,6 +1,6 @@
 name: X86_64 Mini OpenWrt
 
-于:
+on:
   workflow_dispatch:
   schedule:
     - cron: 0 19 * * *
@@ -173,4 +173,3 @@ jobs:
           - ⚽ 固件源码: ${{ env.REPO_URL }}
           - 💝 源码分支: ${{ env.REPO_BRANCH }}
           - 🚀 内核版本: ${{ env.KERNEL }}
-
